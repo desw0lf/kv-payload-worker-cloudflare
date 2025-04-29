@@ -13,7 +13,7 @@
   "kv_namespaces": [
     {
       "binding": "STORAGE_KV_PAYLOAD",
-      "id": "123your_kv_namespace_id",
+      // "id": "123your_kv_namespace_id",
       "preview_id": "b94398c3805c4f52bc520787e763f215"
     }
   ],

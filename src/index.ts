@@ -9,7 +9,8 @@ const corsHeaders = {
 
 // Utility: JSON response
 function json(data: any, status = 200) {
-  return new Response(JSON.stringify(data), {
+  const body = typeof data === "string" ? data : JSON.stringify(data);
+  return new Response(body, {
     status,
     headers: { "Content-Type": "application/json", ...corsHeaders }
   });
@@ -62,9 +63,7 @@ export default {
         return json({ error: "Not Found" }, 404);
       }
 
-      return new Response(result, {
-        headers: { "Content-Type": "application/json" }
-      });
+      return json(result);
     }
 
     // Healthcheck

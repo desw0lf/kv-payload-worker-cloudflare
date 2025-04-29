@@ -9,12 +9,9 @@ function json(data: any, status = 200) {
   });
 }
 
-const STORAGE_NAME = "STORAGE_KV_PAYLOAD";
-
 export default {
   async fetch(request: Request, env: Env, _ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
-    const STORAGE = env[STORAGE_NAME];
     // Handle Batch Update only
     if (request.method === "POST" && url.pathname === "/update/batch") {
       const auth = request.headers.get("Authorization");
@@ -31,15 +28,17 @@ export default {
       const { data, timestamp } = body;
 
       const nowTimestamp = timestamp ?? now();
-      const writes: [string, string[]] = data.reduce((acc, item: any) => {
-        const { uid, hmac, ...rest } = item;
-        if (!uid || !hmac) return acc;
+      const writes: [string, string, Record<string, string>][] = data.reduce((acc, item: any) => {
+        const { hmac, timestamp, ...rest } = item;
+        if (!hmac) return acc;
 
-        acc.push([`hmac:${hmac}`, JSON.stringify({ ...rest, uid, timestamp: item.timestamp ?? nowTimestamp })]);
+        acc.push([`hmac:${hmac}`, JSON.stringify(rest), { timestamp: timestamp ?? nowTimestamp }]);
         return acc;
       }, []);
 
-      await Promise.all(writes.map(([key, value]) => STORAGE.put(key, value)));
+      await Promise.all(writes.map(([key, value, metadata]) => env.STORAGE_KV_PAYLOAD.put(key, value, {
+        metadata: { someMetadataKey: "someMetadataValue" },
+      })));
 
       return json({ message: "Batch saved", saved: writes.length });
     }
@@ -49,7 +48,7 @@ export default {
       const hmac = url.pathname.split("/fetch/")[1];
       if (!hmac) return json({ error: "Missing hmac" }, 400);
 
-      const result = await STORAGE.get(`hmac:${hmac}`);
+      const result = await env.STORAGE_KV_PAYLOAD.get(`hmac:${hmac}`);
       if (!result) {
         return json({ error: "Not Found" }, 404);
       }

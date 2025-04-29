@@ -3,14 +3,17 @@
 	"version": "0.0.0",
 	"private": true,
 	"scripts": {
-		"deploy": "wrangler deploy",
+    "build": "node predeploy.js",
+		"deploy": "wrangler deploy --keep-vars=true",
 		"dev": "wrangler dev",
 		"start": "wrangler dev",
 		"test": "vitest",
-		"cf-typegen": "npx wrangler types"
+		"cf-typegen": "npx wrangler types",
+    "setup": "npm run build && npm run cf-typegen"
 	},
 	"devDependencies": {
 		"@cloudflare/vitest-pool-workers": "^0.8.19",
+		"jsonc-parser": "^3.3.1",
 		"typescript": "^5.5.2",
 		"vitest": "~3.0.7",
 		"wrangler": "^4.13.2"

@@ -3,7 +3,7 @@ Generic simple KV store
 
 ## build cmd
 ```
-npm run build -- --set=kv_namespaces[0].id=123your-kv-id&vars.WORKER_SECRET=your-secret
+npm run build -- --set="kv_namespaces[0].id=123your-kv-id&vars.WORKER_SECRET=your-secret"
 ```
 
 ## deploy cmd

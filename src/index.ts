@@ -39,9 +39,9 @@ export default {
 
       const nowTimestamp = timestamp ?? now();
       const writes: [string, string, Record<string, string>][] = data.reduce((acc, item: any) => {
-        const { hmac, timestamp, ...rest } = item;
-        if (!hmac) return acc;
-        return [...acc, [`hmac:${hmac}`, JSON.stringify(rest), { timestamp: timestamp ?? nowTimestamp }]];
+        const { _uid, timestamp, ...rest } = item;
+        if (!_uid) return acc;
+        return [...acc, [`_uid:${_uid}`, JSON.stringify(rest), { timestamp: timestamp ?? nowTimestamp }]];
       }, []);
 
       await Promise.all(writes.map(([key, value, metadata]) => env.STORAGE_KV_PAYLOAD.put(key, value, { metadata })));
@@ -51,10 +51,10 @@ export default {
 
     // Handle Fetch
     if (request.method === "GET" && url.pathname.startsWith("/fetch/")) {
-      const hmac = url.pathname.split("/fetch/")[1];
-      if (!hmac) return json({ error: "Missing hmac" }, 400);
+      const _uid = url.pathname.split("/fetch/")[1];
+      if (!_uid) return json({ error: "Missing _uid" }, 400);
 
-      const result = await env.STORAGE_KV_PAYLOAD.get(`hmac:${hmac}`);
+      const result = await env.STORAGE_KV_PAYLOAD.get(`_uid:${_uid}`);
       if (!result) {
         return json({ error: "Not Found" }, 404);
       }

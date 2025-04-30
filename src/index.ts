@@ -41,14 +41,10 @@ export default {
       const writes: [string, string, Record<string, string>][] = data.reduce((acc, item: any) => {
         const { hmac, timestamp, ...rest } = item;
         if (!hmac) return acc;
-
-        acc.push([`hmac:${hmac}`, JSON.stringify(rest), { timestamp: timestamp ?? nowTimestamp }]);
-        return acc;
+        return [...acc, [`hmac:${hmac}`, JSON.stringify(rest), { timestamp: timestamp ?? nowTimestamp }]];
       }, []);
 
-      await Promise.all(writes.map(([key, value, metadata]) => env.STORAGE_KV_PAYLOAD.put(key, value, {
-        metadata: { someMetadataKey: "someMetadataValue" },
-      })));
+      await Promise.all(writes.map(([key, value, metadata]) => env.STORAGE_KV_PAYLOAD.put(key, value, { metadata })));
 
       return json({ message: "Batch saved", saved: writes.length });
     }
